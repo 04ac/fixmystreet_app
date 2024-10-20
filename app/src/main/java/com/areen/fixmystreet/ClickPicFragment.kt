@@ -38,7 +38,7 @@ class ClickPicFragment : Fragment() {
     private lateinit var addressTV: TextView
     private var currLat: Double? = null
     private var currLng: Double? = null
-    private lateinit var currAddress: String
+    private var currAddress: String? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val viewModel: ClickPicViewModel by activityViewModels()
@@ -86,7 +86,7 @@ class ClickPicFragment : Fragment() {
         viewModel.currentPhotoPath = currentPhotoPath
         viewModel.currLat = currLat
         viewModel.currLng = currLng
-        viewModel.currAddress = addressTV.text.toString()
+        viewModel.currAddress = currAddress
     }
 
 
@@ -107,7 +107,7 @@ class ClickPicFragment : Fragment() {
     }
 
     private fun displayLocation() {
-        addressTV.text = "Address: $currAddress"
+        addressTV.text = currAddress
         Toast.makeText(requireContext(), "Latitude: ${currLat}\nLongitude: ${currLng}", Toast.LENGTH_SHORT).show()
     }
 
@@ -115,7 +115,7 @@ class ClickPicFragment : Fragment() {
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
         val addresses = geocoder.getFromLocation(latitude, longitude, 1)
         val address = addresses!![0].getAddressLine(0)
-        currAddress = "Address: $address"
+        currAddress = address
     }
 
     // LOCATION PERMISSIONS STUFF
@@ -145,7 +145,6 @@ class ClickPicFragment : Fragment() {
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
             setPic(currentPhotoPath!!, clickedImgIV)
-            getLocation()
             displayLocation()
         }
     }
