@@ -10,6 +10,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -21,6 +23,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.transition.Visibility
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -34,6 +37,7 @@ class ClickPicActivity : AppCompatActivity() {
 
     private lateinit var clickedImgIV: ImageView
     private lateinit var addressTV: TextView
+    private lateinit var submitBtn: Button
     private var currLat: Double? = null
     private var currLng: Double? = null
     private var currAddress: String? = null
@@ -52,6 +56,7 @@ class ClickPicActivity : AppCompatActivity() {
 
         clickedImgIV = findViewById(R.id.clickedImageIV)
         addressTV = findViewById(R.id.addressTV)
+        submitBtn = findViewById(R.id.submitBtn)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         currentPhotoPath = intent.getStringExtra("currentPhotoPath")
@@ -63,6 +68,7 @@ class ClickPicActivity : AppCompatActivity() {
         if (currLng == 90000.0) currLng = null
 
         currentPhotoPath?.let {
+            submitBtn.visibility = View.VISIBLE
             setPic(it, clickedImgIV)
         }
 
@@ -131,6 +137,7 @@ class ClickPicActivity : AppCompatActivity() {
             getLocation()
             displayLocation()
             currentPhotoPath?.let { setPic(it, clickedImgIV) }
+            submitBtn.visibility = View.VISIBLE
         }
     }
 
