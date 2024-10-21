@@ -130,6 +130,7 @@ class ClickPicActivity : AppCompatActivity() {
         if (result.resultCode == Activity.RESULT_OK) {
             getLocation()
             displayLocation()
+            currentPhotoPath?.let { setPic(it, clickedImgIV) }
         }
     }
 
