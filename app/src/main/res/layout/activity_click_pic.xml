@@ -5,7 +5,19 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ExperimentalActivity">
+    tools:context=".ClickPicActivity">
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_add_a_photo_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.884"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.927" />
 
     <TextView
         android:id="@+id/textView"
@@ -22,8 +34,8 @@
 
     <ImageView
         android:id="@+id/clickedImageIV"
-        android:layout_width="335dp"
-        android:layout_height="487dp"
+        android:layout_width="341dp"
+        android:layout_height="419dp"
         android:layout_marginTop="18dp"
         android:contentDescription="Clicked Image"
         app:layout_constraintEnd_toEndOf="parent"
@@ -31,29 +43,28 @@
         app:layout_constraintTop_toBottomOf="@+id/textView"
         tools:srcCompat="@tools:sample/backgrounds/scenic[0]" />
 
-    <ImageButton
-        android:id="@+id/clickImgBtn"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="24dp"
-        android:background="@drawable/rounded_button_background"
-        android:elevation="8dp"
-        android:padding="16dp"
-        android:scaleType="fitXY"
-        android:src="@android:drawable/ic_menu_camera"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.272"
-        app:layout_constraintStart_toEndOf="@+id/addressTV"
-        app:layout_constraintTop_toBottomOf="@+id/clickedImageIV" />
-
     <TextView
         android:id="@+id/addressTV"
-        android:layout_width="234dp"
-        android:layout_height="85dp"
+        android:layout_width="296dp"
+        android:layout_height="69dp"
         android:layout_marginTop="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.279"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/clickedImageIV" />
+        app:layout_constraintTop_toBottomOf="@+id/clickedImageIV"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/submitBtn"
+        android:layout_width="216dp"
+        android:layout_height="53dp"
+        android:layout_marginBottom="52dp"
+        android:text="Submit"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/fab"
+        app:layout_constraintHorizontal_bias="0.467"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
