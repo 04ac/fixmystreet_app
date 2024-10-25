@@ -10,23 +10,33 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.text.InputType
+import android.util.Base64
+import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.transition.Visibility
+import androidx.lifecycle.lifecycleScope
+import com.areen.fixmystreet.services.ApiService
+import com.areen.fixmystreet.services.PotholeReport
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.launch
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -76,10 +86,67 @@ class ClickPicActivity : AppCompatActivity() {
             displayLocation()
         }
 
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://pumped-enough-newt.ngrok-free.app/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val apiService = retrofit.create(ApiService::class.java)
+
         val fab = findViewById<FloatingActionButton>(R.id.fab)
         fab.setOnClickListener {
             checkLocationPermission()
         }
+
+        submitBtn.setOnClickListener {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Enter Your Name")
+
+            val input = EditText(this)
+            input.inputType = InputType.TYPE_CLASS_TEXT
+            builder.setView(input)
+
+            builder.setPositiveButton("Submit") { dialog, _ ->
+                val name = input.text.toString()
+                val currPhotoPath = this.currentPhotoPath!! // Replace with your actual photo path
+                val latitude = currLat.toString() // Replace with actual latitude
+                val longitude = currLng.toString() // Replace with actual longitude
+                val address = currAddress!! // Replace with actual address
+
+                // Convert image to Base64
+                val imageFile = File(currPhotoPath)
+                val imageBase64 = imageFile.readBytes().let { Base64.encodeToString(it, Base64.DEFAULT) }
+
+                // Create the report object
+                val report = PotholeReport(
+                    address = address,
+                    latitude = latitude,
+                    longitude = longitude,
+                    submittedBy = name,
+                    image = imageBase64
+                )
+
+                // Send the POST request
+                lifecycleScope.launch {
+                    try {
+                        val response = apiService.uploadImage(report)
+                        Log.d("Response from API", response.body().toString())
+                        if (response.isSuccessful) {
+                            response.body()?.message?.let { it1 -> Log.d("Success", it1) }
+                        } else {
+                            Log.e("Failure", "failed to report")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("Failure", e.stackTraceToString())
+                    }
+                }
+            }
+
+            builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+
+            builder.show()
+        }
+
     }
 
     private fun checkLocationPermission() {

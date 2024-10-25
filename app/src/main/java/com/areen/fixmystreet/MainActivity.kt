@@ -9,15 +9,26 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
+import android.view.View
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.areen.fixmystreet.models.Case
+import com.areen.fixmystreet.services.ApiClient
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -31,16 +42,64 @@ class MainActivity : AppCompatActivity() {
     private var currAddress: String? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    private lateinit var noDataTextView: TextView
+    private lateinit var fab: FloatingActionButton
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var progressBar: ProgressBar
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        val fab = findViewById<FloatingActionButton>(R.id.fab)
+        recyclerView = findViewById(R.id.recyclerView)
+        fab = findViewById(R.id.fab)
+        noDataTextView = findViewById(R.id.textView2)
+        progressBar = findViewById(R.id.progressBar)
+
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        fetchData()
+
         fab.setOnClickListener {
             checkLocationPermission()
         }
+    }
+
+    private fun fetchData() {
+        progressBar.visibility = View.VISIBLE
+        recyclerView.visibility = View.GONE
+        noDataTextView.visibility = View.GONE
+
+        val call = ApiClient.apiService.getAllCases()
+        call.enqueue(object : Callback<List<Case>> {
+            override fun onResponse(call: Call<List<Case>>, response: Response<List<Case>>) {
+                // Hide the progress spinner when data is loaded
+                progressBar.visibility = View.GONE
+
+                if (response.isSuccessful) {
+                    val caseList = response.body()
+
+                    if (caseList.isNullOrEmpty()) {
+                        // Show FAB and TextView, hide RecyclerView
+                        fab.visibility = View.VISIBLE
+                        noDataTextView.visibility = View.VISIBLE
+                        recyclerView.visibility = View.GONE
+                    } else {
+                        // Show RecyclerView
+                        noDataTextView.visibility = View.GONE
+                        recyclerView.visibility = View.VISIBLE
+                        recyclerView.adapter = CaseAdapter(caseList)
+                    }
+                } else {
+                    Log.e("MainActivity", "Error: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<List<Case>>, t: Throwable) {
+                Log.e("MainActivity", "Failure: ${t.message}")
+            }
+        })
     }
 
     private fun checkLocationPermission() {
